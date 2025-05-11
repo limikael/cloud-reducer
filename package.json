@@ -1,10 +1,11 @@
 {
   "name": "cloud-reducer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "scripts": {
     "test": "jasmine"
   },
+  "main": "./src/lib/exports.js",
   "dependencies": {
     "serve-fetch": "^1.0.4"
   },

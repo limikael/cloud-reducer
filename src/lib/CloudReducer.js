@@ -1,7 +1,7 @@
 import {urlGetArgs, splitPath, jsonEq, responseAssert} from "../utils/js-util.js";
 
 export default class CloudReducer {
-	constructor({fetch, hookUrl, basePathname, authorization}) {
+	constructor({fetch, hookUrl, basePathname, authorization, log}) {
 		this.hookUrl=hookUrl;
 		this.fetch=fetch;
 		if (!this.fetch)
@@ -18,6 +18,10 @@ export default class CloudReducer {
 		this.state=null;
 		this.again=false;
 		this.authorization=authorization;
+
+		this.log=log;
+		if (!this.log)
+			this.log=()=>{};
 	}
 
 	async handleRequest(request) {
@@ -58,12 +62,11 @@ export default class CloudReducer {
 		if (this.authorization)
 			headers.set("authorization",this.authorization);
 
+		this.log("Calling reducer...");
 		let response=await this.fetch(this.hookUrl,{
 			method: "POST",
 			headers: headers,
-			body: JSON.stringify({
-				state: this.state
-			})
+			body: JSON.stringify({state: this.state})
 		});
 
 		await responseAssert(response);
@@ -77,6 +80,7 @@ export default class CloudReducer {
 
 	async runBatch() {
 		if (this.runState=="running") {
+			this.log("Setting again...");
 			this.again=true;
 			return;
 		}
@@ -86,14 +90,19 @@ export default class CloudReducer {
 			this.error=null;
 			this.state=null;
 			this.again=false;
+			this.log("Starting batch...");
+
 			do {
 				await this.reduce();
 			} while (this.state);
 
+			this.log("Batch complete.");
 			this.runState="idle";
 		}
 
 		catch (e) {
+			this.log("Batch errored: "+e.message);
+
 			this.runState="error";
 			this.error=e.message;
 		}
