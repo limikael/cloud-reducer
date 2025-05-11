@@ -1,0 +1,15 @@
+{
+  "name": "cloud-reducer",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "test": "jasmine"
+  },
+  "dependencies": {
+    "serve-fetch": "^1.0.4"
+  },
+  "type": "module",
+  "devDependencies": {
+    "jasmine": "^5.7.1"
+  }
+}
