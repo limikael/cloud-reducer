@@ -5,13 +5,17 @@ import http from "http";
 
 describe("CloudReducer",()=>{
 	let serviceLog;
+	let requestLog;
 
 	beforeEach(()=>{
 		serviceLog=[];
+		requestLog=[];
 	});
 
 	async function service(request) {
 		let data=await request.json();
+
+		requestLog.push(data);
 
 		if (!data.state) {
 			serviceLog.push("starting...");
@@ -36,6 +40,8 @@ describe("CloudReducer",()=>{
 	}
 
 	it("can update the current state",async ()=>{
+
+
 		let serviceServer=http.createServer(createNodeRequestListener(service));
 		let port=await listenPromise(serviceServer);
 
@@ -48,6 +54,11 @@ describe("CloudReducer",()=>{
 		expect(serviceLog).toEqual(["starting...","state is 1, moving to 2","state is 2, done!"]);
 
 		await closePromise(serviceServer);
+
+		expect(requestLog.length).toEqual(3);
+		expect(requestLog[0].uuid).toEqual(requestLog[1].uuid);
+
+		//console.log(requestLog);
 	});
 
 	it("can handle a request",async ()=>{

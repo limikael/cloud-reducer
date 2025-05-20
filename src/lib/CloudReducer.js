@@ -62,11 +62,11 @@ export default class CloudReducer {
 		if (this.authorization)
 			headers.set("authorization",this.authorization);
 
-		this.log("Calling reducer...");
+		this.log("Calling reducer, job="+this.uuid);
 		let response=await this.fetch(this.hookUrl,{
 			method: "POST",
 			headers: headers,
-			body: JSON.stringify({state: this.state})
+			body: JSON.stringify({state: this.state, uuid: this.uuid})
 		});
 
 		await responseAssert(response);
@@ -90,6 +90,8 @@ export default class CloudReducer {
 			this.error=null;
 			this.state=null;
 			this.again=false;
+			this.uuid=crypto.randomUUID();
+
 			this.log("Starting batch...");
 
 			do {
